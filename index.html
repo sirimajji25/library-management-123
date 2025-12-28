@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VIGNAN DHARA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+margin:0;
+font-family:Segoe UI,sans-serif;
+background:#f2f4f8;
+}
+
+h1{
+text-align:center;
+color:#0d47a1;
+animation:pop 0.8s ease;
+}
+
+@keyframes pop{
+0%{transform:scale(0.7);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+
+.hidden{display:none}
+
+.container{
+max-width:950px;
+margin:20px auto;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+input,button{
+width:100%;
+padding:10px;
+margin:6px 0;
+}
+
+button{
+background:#0d47a1;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.profile{
+font-weight:bold;
+color:#0d47a1;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:25px;
+margin-top:30px;
+}
+
+.circle{
+width:140px;
+height:140px;
+border-radius:50%;
+margin:auto;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+cursor:pointer;
+font-weight:bold;
+color:#0d47a1;
+background:#fff;
+border:5px solid #0d47a1;
+box-shadow:0 0 0 5px rgba(13,71,161,.25);
+transition:.2s;
+}
+
+.circle:hover{transform:scale(1.05)}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+
+th{background:#e3f2fd}
+
+.search{
+float:right;
+width:220px;
+margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- AUTH -->
+<div id="auth" class="container">
+<h1>VIGNAN DHARA</h1>
+
+<div id="reg">
+<input id="ru" placeholder="Username">
+<input id="rp" type="password" placeholder="Password">
+<input id="rc" placeholder="Library Code">
+<button onclick="register()">Register</button>
+<p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+</div>
+
+<div id="log" class="hidden">
+<input id="lu" placeholder="Username">
+<input id="lp" type="password">
+<input id="ld" type="date">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="hidden">
+<div class="top">
+<h1>VIGNAN DHARA</h1>
+<div class="profile">👤 <span id="adminName"></span></div>
+</div>
+
+<div class="grid">
+<div class="circle" onclick="openSec('addBook')">ADD<br>BOOK</div>
+<div class="circle" onclick="openSec('addStudent')">REGISTER<br>STUDENT</div>
+<div class="circle" onclick="openSec('students')">STUDENT<br>DETAILS</div>
+<div class="circle" onclick="openSec('books')">SEARCH<br>BOOKS</div>
+<div class="circle" onclick="openSec('issue')">ISSUE<br>BOOK</div>
+<div class="circle" onclick="openSec('issued')">ISSUED<br>BOOKS</div>
+</div>
+</div>
+
+<!-- ADD BOOK -->
+<div id="addBook" class="container hidden">
+<h3>Add Book</h3>
+<input id="bn" placeholder="Book Name">
+<input id="bid" placeholder="Book ID">
+<input id="ba" placeholder="Author">
+<input id="bt" type="number" placeholder="Total Copies">
+<button onclick="addBook()">Add</button>
+</div>
+
+<!-- ADD STUDENT -->
+<div id="addStudent" class="container hidden">
+<h3>Register Student</h3>
+<input id="sn" placeholder="Student Name">
+<input id="sid" placeholder="Student ID (10 CAPS + NUMBERS)">
+<input id="sm" placeholder="Mobile (10 digits)">
+<input id="sb" placeholder="Branch">
+<input id="sy" placeholder="Year">
+<button onclick="addStudent()">Register</button>
+</div>
+
+<!-- STUDENTS -->
+<div id="students" class="container hidden">
+<h3>Student Details</h3>
+<input class="search" placeholder="Search" onkeyup="search(this,'studTable')">
+<table id="studTable"></table>
+</div>
+
+<!-- BOOKS -->
+<div id="books" class="container hidden">
+<h3>Books</h3>
+<table id="bookTable"></table>
+</div>
+
+<!-- ISSUE -->
+<div id="issue" class="container hidden">
+<h3>Issue Book</h3>
+<input id="ib" placeholder="Book ID">
+<input id="is" placeholder="Student ID">
+<input id="idate" type="date">
+<button onclick="issue()">Issue</button>
+</div>
+
+<!-- ISSUED -->
+<div id="issued" class="container hidden">
+<h3>Issued Books</h3>
+<input class="search" placeholder="Search" onkeyup="search(this,'issTable')">
+<table id="issTable"></table>
+</div>
+
+<script>
+let admin=null,books=[],students=[],issued=[];
+
+function clearInputs(ids){
+ids.forEach(id=>document.getElementById(id).value="");
+}
+
+function showLogin(){
+reg.classList.add('hidden');
+log.classList.remove('hidden');
+clearInputs(['ru','rp','rc']);
+}
+
+function register(){
+if(rc.value!=="MMMM8654") return alert("Invalid Library Code");
+admin={u:ru.value,p:rp.value};
+alert("Registered Successfully");
+showLogin();
+}
+
+function login(){
+if(!ld.value) return alert("Select date");
+if(lu.value!==admin.u||lp.value!==admin.p) return alert("Invalid Login");
+auth.classList.add('hidden');
+dash.classList.remove('hidden');
+adminName.innerText=admin.u;
+clearInputs(['lu','lp','ld']);
+}
+
+function openSec(id){
+document.querySelectorAll('.container').forEach(x=>x.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+}
+
+function addBook(){
+if(books.some(b=>b.id===bid.value)) return alert("Book already exists");
+books.push({name:bn.value,id:bid.value,author:ba.value,total:+bt.value,issued:0});
+renderBooks();
+clearInputs(['bn','bid','ba','bt']);
+}
+
+function addStudent(){
+if(!/^[A-Z0-9]{10}$/.test(sid.value)) return alert("Invalid Student ID");
+if(!/^[0-9]{10}$/.test(sm.value)) return alert("Invalid Mobile Number");
+students.push({name:sn.value,id:sid.value,mobile:sm.value,branch:sb.value,year:sy.value});
+renderStudents();
+clearInputs(['sn','sid','sm','sb','sy']);
+}
+
+function issue(){
+let b=books.find(x=>x.id===ib.value);
+if(!b||b.total-b.issued<=0) return alert("Book not available");
+let s=students.find(x=>x.id===is.value);
+if(!s) return alert("Student not registered");
+b.issued++;
+issued.push({book:b.name,id:b.id,student:is.value,date:idate.value,confirm:false});
+renderAll();
+clearInputs(['ib','is','idate']);
+}
+
+function fine(d){
+let days=Math.floor((new Date()-new Date(d))/(1000*60*60*24));
+return days>14?(days-14)*10:0;
+}
+
+function returnBook(i){
+if(!issued[i].confirm){
+alert("Check if fine is paid");
+issued[i].confirm=true;
+renderIssued();
+return;
+}
+books.find(b=>b.id===issued[i].id).issued--;
+issued.splice(i,1);
+renderAll();
+}
+
+function editBook(i){
+let b=books[i];
+b.name=prompt("Book Name",b.name);
+b.author=prompt("Author",b.author);
+b.total=+prompt("Total Copies",b.total);
+renderBooks();
+}
+
+function editStudent(i){
+let s=students[i];
+s.name=prompt("Name",s.name);
+s.mobile=prompt("Mobile",s.mobile);
+renderStudents();
+}
+
+function renderBooks(){
+bookTable.innerHTML=`<tr><th>S.No</th><th>Name</th><th>ID</th><th>Total</th><th>Issued</th><th>Available</th><th>Edit</th></tr>`;
+books.forEach((b,i)=>{
+bookTable.innerHTML+=`<tr>
+<td>${i+1}</td><td>${b.name}</td><td>${b.id}</td>
+<td>${b.total}</td><td>${b.issued}</td><td>${b.total-b.issued}</td>
+<td><button onclick="editBook(${i})">Edit</button></td></tr>`;
+});
+}
+
+function renderStudents(){
+studTable.innerHTML=`<tr><th>S.No</th><th>Name</th><th>ID</th><th>Mobile</th><th>Fine</th><th>Edit</th></tr>`;
+students.forEach((s,i)=>{
+let f=issued.filter(x=>x.student===s.id).reduce((a,x)=>a+fine(x.date),0);
+studTable.innerHTML+=`<tr>
+<td>${i+1}</td><td>${s.name}</td><td>${s.id}</td>
+<td>${s.mobile}</td><td>₹${f}</td>
+<td><button onclick="editStudent(${i})">Edit</button></td></tr>`;
+});
+}
+
+function renderIssued(){
+issTable.innerHTML=`<tr><th>Book</th><th>Student</th><th>Date</th><th>Fine</th><th>Return</th></tr>`;
+issued.forEach((x,i)=>{
+issTable.innerHTML+=`<tr>
+<td>${x.book}</td><td>${x.student}</td><td>${x.date}</td>
+<td>₹${fine(x.date)}</td>
+<td><button onclick="returnBook(${i})">${x.confirm?"Confirm":"Return"}</button></td></tr>`;
+});
+}
+
+function renderAll(){renderBooks();renderStudents();renderIssued();}
+
+function search(inp,id){
+let f=inp.value.toLowerCase();
+[...document.getElementById(id).rows].forEach((r,i)=>{
+if(i===0)return;
+r.style.display=r.innerText.toLowerCase().includes(f)?"":"none";
+});
+}
+</script>
+
+</body>
+</html>
